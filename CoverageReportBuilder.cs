@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ExplorationEngine.Automation.Tests.Infra
+namespace TestCoverageDetectionUtility.Tests.Infra
 {
     public class CoverageReportBuilder
     {
         private readonly static string downloadsFolder = $"{Environment.GetEnvironmentVariable("HOMEDRIVE")}{Environment.GetEnvironmentVariable("HOMEPATH")}\\Downloads";
-        public readonly string LogFilePath = $"{downloadsFolder}\\ExplorationEngineTestCoverage.csv";
+        public readonly string LogFilePath = $"{downloadsFolder}\\TestCoverage.csv";
         public readonly string PreviousTestNameFilePath = $"{downloadsFolder}\\LastTestName.csv";
-        public readonly string StableFailedFilePath = $"{downloadsFolder}\\StableFailedList.csv";
+        public readonly string StableFailedFilePath = $"{downloadsFolder}\\FrequentlyFailedList.csv";
         List<string> FrequentlyFailedTests;
         string authorPrefix = " Author: ";
         public CoverageReportBuilder()
