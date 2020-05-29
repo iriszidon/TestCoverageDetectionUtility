@@ -14,9 +14,11 @@ namespace CoverageReportBuilder
             string csvCoverageFilePath = $"{downloadsFolder}\\ExplorationEngineTestCoverage.csv";
             string excelFilePath = $"{downloadsFolder}\\ExplorationEngineTestCoverage.xlsx";
             string stabeFailedFilePath = $"{downloadsFolder}\\StableFailedList.csv";
+            string helpFileFullPath = "C:\\CoverageUtil\\CoverageReportBuilder\\CoverageReportBuilder\\Help.txt";
             Console.WriteLine($"\nHello {Environment.GetEnvironmentVariable("USERNAME")}, Which action would you like to perform?\n");
             Console.WriteLine(@"1 - Create Coverage report
 2 - Prompt StableFailed test list
+3 - Prompt ReadMe file and get help.
 Other - Quit the program");
             Console.WriteLine();
             string action = Console.ReadLine();
@@ -115,6 +117,7 @@ Other - Quit the program");
                                 }
                                 failedTests.Sort();
                                 var distinctFailedTests = failedTests.Distinct();
+                                Console.ForegroundColor = ConsoleColor.Yellow;
                                 foreach (var testName in distinctFailedTests)
                                 {
                                     int failuresCount = failedTests.Where(x => x == testName).Count();
@@ -123,6 +126,7 @@ Other - Quit the program");
                                         Console.WriteLine($"{testName} - Failed {failuresCount} times");
                                     }
                                 }
+                                Console.ForegroundColor = ConsoleColor.White;
                             }
                             Console.WriteLine($"\nThat's it, {Environment.GetEnvironmentVariable("USERNAME")} ;)");
                             //Console.WriteLine($"Click any Key to exit");
@@ -133,6 +137,34 @@ Other - Quit the program");
                             Console.WriteLine($"No '{stabeFailedFilePath}' File to analize. Please supply a file.");
                             //Console.WriteLine($"Click any Key to exit");
                             //Console.ReadLine();
+                        }
+                        break;
+                    }
+                case "3":
+                    {
+                        if (File.Exists(helpFileFullPath))
+                        {
+                            using (StreamReader reader = File.OpenText(helpFileFullPath))
+                            {
+                                string line = "Tra la laaaaa";
+                                while ((line = reader.ReadLine()) != null)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Blue;
+                                    Console.WriteLine(line);
+                                    string key = Console.ReadLine();
+                                    if (key == " ")
+                                    {
+                                        line = reader.ReadToEnd();
+                                        Console.WriteLine(line);
+                                        break;
+                                    }
+                                }
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"No Help file was found, Sorry, {Environment.GetEnvironmentVariable("USERNAME")}...");
                         }
                         break;
                     }
