@@ -4,19 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace TestCoverageDetectionUtility.Tests.Infra
+namespace ExplorationEngine.Automation.Tests.Infra
 {
     public class CoverageReportBuilder
     {
         private readonly static string downloadsFolder = $"{Environment.GetEnvironmentVariable("HOMEDRIVE")}{Environment.GetEnvironmentVariable("HOMEPATH")}\\Downloads";
-        public readonly string LogFilePath = $"{downloadsFolder}\\TestCoverage.csv";
+        public readonly string LogFilePath = $"{downloadsFolder}\\ExplorationEngineTestCoverage.csv";
         public readonly string PreviousTestNameFilePath = $"{downloadsFolder}\\LastTestName.csv";
-        public readonly string StableFailedFilePath = $"{downloadsFolder}\\FrequentlyFailedList.csv";
+        public readonly string StableFailedFilePath = $"{downloadsFolder}\\StableFailedList.csv";
         List<string> FrequentlyFailedTests;
+        Queue<string> FrequentlyFailedQueue;
         string authorPrefix = " Author: ";
         public CoverageReportBuilder()
         {
             FrequentlyFailedTests = new List<string>();
+            FrequentlyFailedQueue = new Queue<string>();
             if (File.Exists(StableFailedFilePath))
             {
                 using (StreamReader reader = new StreamReader(StableFailedFilePath))
@@ -24,6 +26,7 @@ namespace TestCoverageDetectionUtility.Tests.Infra
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
+                        FrequentlyFailedQueue.Enqueue(line);
                         int indexOfComma = line.IndexOf(authorPrefix, 0);
                         if (indexOfComma == -1)
                         {
@@ -101,9 +104,9 @@ namespace TestCoverageDetectionUtility.Tests.Infra
                             }
                         }
                         FileInfo stableFailedFileInfo = new FileInfo(StableFailedFilePath);
-                        if (stableFailedFileInfo.Length > 2000 * 1000)
+                        if (stableFailedFileInfo.Length >= 70)
                         {
-                            RecreateReport(StableFailedFilePath);
+                            DequeueOldestTestFromReport(StableFailedFilePath);
                         }
                     }
                 }               
@@ -137,6 +140,25 @@ namespace TestCoverageDetectionUtility.Tests.Infra
         {
             DeleteExistingReport(LogFilePath);
             CreateNewReport(LogFilePath);
+        }
+
+        private void DequeueOldestTestFromReport(string logFilePath)
+        {
+            DeleteExistingReport(logFilePath);         
+            int numberOfOldestTests = FrequentlyFailedQueue.Count() / 5; //Delete 20% from the tests
+            for (int i = 0; i < numberOfOldestTests; i++)
+            {
+                FrequentlyFailedQueue.Dequeue();
+            }
+            CreateNewReport(logFilePath);
+            using (StreamWriter writer = new StreamWriter(logFilePath)) //Save the rest of the 80%
+            {
+                while (FrequentlyFailedQueue.Count > 0)
+                {
+                    string dequeuedTest = FrequentlyFailedQueue.Dequeue();
+                    writer.WriteLine(dequeuedTest);
+                }                
+            }
         }
 
         public bool IsTestStableFailed
