@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,29 +61,21 @@ namespace ExplorationEngine.Automation.Tests.Infra
                 testName = testName.Replace(",", "-");
             }
             FileInfo coverageFileInfo = new FileInfo(LogFilePath);
-            if (coverageFileInfo.Length > 1000*1000) // 1 MB
+            if (coverageFileInfo.Length > 1000 * 1000) // 1 MB
             {
                 RecreateReport(LogFilePath);
             }
 
             int firstunderScore = testName.IndexOf("_");
             string subject = testName.Substring(0, firstunderScore);
+            subject = InsertSpaceCharBeforeEachUppercase(subject);
             int suffixIndex = 0;
             if (testName.Contains("_"))
             {
                 suffixIndex = testName.LastIndexOf("_") + 1;
             }
             string subsubject = testName.Substring(suffixIndex);
-            foreach (char item in subsubject)
-            {
-                if (Char.IsUpper(item))
-                {
-                    if(subsubject.IndexOf(item) > 0)
-                    {
-                        subsubject = subsubject.Insert(subsubject.IndexOf(item), " ");
-                    }
-                }
-            }
+            subsubject = InsertSpaceCharBeforeEachUppercase(subsubject);
             using (StreamWriter sw = File.AppendText(LogFilePath))
             {
                 bool isMethosExist = false;
@@ -104,7 +96,7 @@ namespace ExplorationEngine.Automation.Tests.Infra
                             }
                         }
                         FileInfo stableFailedFileInfo = new FileInfo(StableFailedFilePath);
-                        if (stableFailedFileInfo.Length >= 70)
+                        if (stableFailedFileInfo.Length >= 70 * 1000)
                         {
                             DequeueOldestTestFromReport(StableFailedFilePath);
                         }
@@ -131,7 +123,7 @@ namespace ExplorationEngine.Automation.Tests.Infra
             {
                 using (StreamWriter writer = new StreamWriter(logFilePath))
                 {
-                    writer.WriteLine($"{DateTime.Today}");
+                    writer.WriteLine($"The file was recreated at {DateTime.Today}");
                 }
             }
         }
@@ -174,6 +166,24 @@ namespace ExplorationEngine.Automation.Tests.Infra
                     return false;
                 }
             }         
+        }
+
+        private string InsertSpaceCharBeforeEachUppercase(string camelCaseString)
+        {
+            string splitedText = camelCaseString.Substring(0, 1);
+            char[] charArray = camelCaseString.ToCharArray();
+            for (int i = 1; i < charArray.Length; i++)
+            {
+                if (Char.IsUpper(charArray[i]))
+                {
+                    splitedText += " " + charArray[i];
+                }
+                else
+                {
+                    splitedText += charArray[i];
+                }               
+            }
+            return splitedText;
         }
     }
 }
